@@ -1,48 +1,68 @@
 # 06_classes_and_objects.py
+import numpy as np
 
 # =====================================================================
-# 1. 声明一个“类” (等同于设计一款机器人底盘的蓝图)
+# 1. 声明“智能体大脑类” (完美高仿 policy_agent.py 里的图纸)
 # =====================================================================
-class RobotController:
-    # 构造函数：每当有一台真正的机器人出厂时，这个函数会自动运行，用来给它“配置初始硬件参数”
-    def __init__(self, name, max_vx):
-        self.robot_name = name    # 属性 (Attribute)：绑定在实体小车自己身上的名字
-        self.vx_limit = max_vx    # 属性 (Attribute)：绑定在实体小车自己身上的限速值
-        self.current_vx = 0.0     # 属性 (Attribute)：初始速度默认是 0
-        print(f"🎉 成功根据蓝图造出了一台实体小车，名字叫：[{self.robot_name}]")
-
-    # 方法 (Method)：绑定在小车身上的加工函数，负责控制小车加速
-    def accelerate(self, increment):
-        # 这里的 self.current_vx 代表改变“小车自己”的当前速度
-        self.current_vx += increment
+class ToyLoGoPlannerAgent:
+    # 构造函数：开机配置向导
+    # image_intrinsic 后面没有等号，代表必须由主程序手动传入
+    # 其他三个参数有等号，代表有默认值
+    def __init__(self, image_intrinsic, image_size=224, memory_size=8, device='cuda:0'):
+        # 核心动作：用 self. 把参数死死刻在这个刚诞生的实体骨头上
+        self.image_intrinsic = image_intrinsic
+        self.image_size = image_size
+        self.memory_size = memory_size
+        self.device = device
         
-        # 结合前面学的条件判断，进行速度限幅 (模拟你的毕设 MPC 限速逻辑)
-        if self.current_vx > self.vx_limit:
-            self.current_vx = self.vx_limit
-            print(f"⚠️ [{self.robot_name}] 已经达到限幅最大速度：{self.current_vx} m/s")
-        else:
-            print(f"🚀 [{self.robot_name}] 正在加速，当前速度：{self.current_vx} m/s")
+        print(f"🧠 [大脑实体已诞生] 成功绑定计算芯片: {self.device}")
+        print(f"   -> 视觉裁剪分辨率设为: {self.image_size}x{self.image_size}")
+        print(f"   -> 历史时间序列记忆步长锁死为: {self.memory_size} 帧")
+        print(f"   -> 相机内参成功刷入，当前内参矩阵为:\n{self.image_intrinsic}")
+
+    # 方法：绑定在大脑实体身上的数据加工厂
+    def step_pointgoal(self, image, depth):
+        print("\n⚡ [大脑正在高速思考推理中...]")
+        # 模拟大脑在后台默默翻阅自己身体里存着的硬件内参
+        print(f"   [读取状态] 正在调用 {self.device} 显卡资源...")
+        print(f"   [数学转换] 正在利用体内的小车相机内参，将 2D 像素画面反投影为 3D 物理空间...")
+        
+        # 假装经过了复杂的 Transformer 矩阵乘法，最终加工出一条推荐的行驶轨迹
+        simulated_trajectory = [[0.0, 0.0], [0.1, 0.05], [0.2, 0.10]]
+        
+        # 把加工完的最终数据成果“吐出去”给主程序
+        return simulated_trajectory
 
 
 # =====================================================================
-# 2. 实例化“对象” (真正根据蓝图在生产线上造出两台不同属性的实体小车)
+# 2. 主程序运行：模拟服务器接收网络数据、实例化并调用 (高仿 server 端)
 # =====================================================================
-print("--- 🏭 机器人面向对象 (OOP) 实战演练 ---\n")
+print("--- 🌐 欢迎来到具身智能大脑「面向对象」全景演练 ---\n")
 
-# 造第一台小车：叫 LogoBot，安全限速 0.5 m/s (对应毕设初始化)
-robot_1 = RobotController(name="LogoBot", max_vx=0.5)
+# 场景模拟：此时实体小车开机了，通过局域网给服务器发来了一串它相机自带的内参矩阵数字
+# 这是一个经典的 3x3 相机内参矩阵数字（代表焦距和中心点）
+camera_hardware_matrix = np.array([
+    [525.0,   0.0, 319.5],
+    [  0.0, 525.0, 239.5],
+    [  0.0,   0.0,   1.0]
+])
 
-# 造第二台小车：叫 OmniBot，性能更好，安全限速 1.2 m/s
-robot_2 = RobotController(name="OmniBot", max_vx=1.2)
+print("📬 [网络接收] 服务器成功收到小车发来的物理相机内参数据。")
+print("🏭 [开始生产] 准备根据图纸创造专属的大脑实体对象...")
 
-print("\n" + "="*20 + " 🎮 开始下发控制指令 " + "="*20 + "\n")
+# 实例化对象：把上面刚收到的相机内参传进去
+# 我们故意不传 image_size 和 memory_size，让它自动去使用图纸里的默认值 224 和 8
+navdp_navigator = ToyLoGoPlannerAgent(image_intrinsic=camera_hardware_matrix)
 
-# 场景：两台小车互相独立，各自执行自己的加速动作
-print("-> 指令：命令两台小车同时加速 0.4 m/s")
-robot_1.accelerate(0.4)  # 运行结果应该是 0.4
-robot_2.accelerate(0.4)  # 运行结果应该是 0.4
-print("-" * 40)
+print("\n" + "="*50)
 
-print("-> 指令：命令两台小车再次加速 0.4 m/s")
-robot_1.accelerate(0.4)  # 触发限幅，被压制回 0.5
-robot_2.accelerate(0.4)  # 正常加速到 0.8
+# 模拟机器人运行循环：摄像头拍到了画面，扔给对象去加工
+print("\n📸 [流式数据输入] 摄像头抓拍到一帧新的图像和深度图...")
+current_image = "Fake_RGB_Image_Data"
+current_depth = "Fake_Depth_Image_Data"
+
+# 呼叫对象身上的加工厂方法，灌入图像，等待它吐出轨迹
+execute_trajectory = navdp_navigator.step_pointgoal(image=current_image, depth=current_depth)
+
+print(f"\n🎯 [加工完成] 服务器成功拿到大脑对象返回的规划轨迹: {execute_trajectory}")
+print("🏎️  MPC控制器可以根据这条轨迹去控轮子转速了！")
